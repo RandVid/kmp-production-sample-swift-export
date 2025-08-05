@@ -12,19 +12,19 @@ import RssReader
 struct FeedsList: ConnectedView {
     
     struct Props {
-        let defaultFeeds: [Feed]
-        let userFeeds: [Feed]
+        let defaultFeeds: [core.entity.Feed]
+        let userFeeds: [core.entity.Feed]
         let onAdd: (String) -> ()
         let onRemove: (String) -> ()
     }
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props {
+    func map(state: app.FeedState, dispatch: @escaping DispatchFunction) -> Props {
         return Props(defaultFeeds: state.feeds.filter { $0.isDefault },
                      userFeeds: state.feeds.filter { !$0.isDefault },
                      onAdd: { url in
-                        dispatch(FeedAction.Add(url: url))
+            dispatch(app.FeedAction.Add(url: url))
                      }, onRemove: { url in
-                        dispatch(FeedAction.Delete(url: url))
+                         dispatch(app.FeedAction.Delete(url: url))
                      })
     }
     
@@ -53,5 +53,5 @@ struct FeedsList: ConnectedView {
     }
 }
 
-extension Feed: Identifiable { }
+extension core.entity.Feed: Identifiable { }
 

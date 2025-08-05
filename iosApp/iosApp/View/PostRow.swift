@@ -11,7 +11,7 @@ import RssReader
 import URLImage
 
 struct PostRow: View {
-    let post: Post
+    let post: core.entity.Post
     
     var body: some View {
         if let postURL = post.linkURL {
@@ -45,7 +45,7 @@ struct PostRow: View {
     }
 }
 
-extension Post {
+extension core.entity.Post {
     static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "E, MMM d HH:mm"
@@ -53,7 +53,7 @@ extension Post {
     }()
     
     var dateString: String {
-        return Post.dateFormatter.string(from: Date(timeIntervalSince1970: TimeInterval(date)))
+        return core.entity.Post.dateFormatter.string(from: Date(timeIntervalSince1970: TimeInterval(date)))
     }
     
     var linkURL: URL? {

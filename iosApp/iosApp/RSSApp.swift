@@ -12,12 +12,12 @@ import RssReader
 
 @main
 struct RSSApp: App {
-    let rss: RssReader
+    let rss: core.RssReader
     let store: ObservableFeedStore
     
     init() {
-        rss = RssReader.Companion().create(withLog: true)
-        store = ObservableFeedStore(store: FeedStore(rssReader: rss))
+        rss = core.create(core.RssReader.Companion.shared, withLog: true)
+        store = ObservableFeedStore(store: app.FeedStore(rssReader: rss))
     }
   
     var body: some Scene {
@@ -28,25 +28,25 @@ struct RSSApp: App {
 }
 
 class ObservableFeedStore: ObservableObject {
-    @Published public var state: FeedState =  FeedState(progress: false, feeds: [], selectedFeed: nil)
-    @Published public var sideEffect: FeedSideEffect?
+    @Published public var state: app.FeedState = app.FeedState(progress: false, feeds: [], selectedFeed: nil)
+    @Published public var sideEffect: app.FeedSideEffect?
     
-    let store: FeedStore
+    let store: app.FeedStore
     
-    var stateWatcher : Closeable?
-    var sideEffectWatcher : Closeable?
+    var stateWatcher : core.Closeable?
+    var sideEffectWatcher : core.Closeable?
 
-    init(store: FeedStore) {
+    init(store: app.FeedStore) {
         self.store = store
-        stateWatcher = self.store.watchState().watch { [weak self] state in
-            self?.state = state
+        stateWatcher = app.watchState(store).watch { [self] state in
+            self.state = state as! app.FeedState
         }
-        sideEffectWatcher = self.store.watchSideEffect().watch { [weak self] state in
-            self?.sideEffect = state
+        sideEffectWatcher = app.watchSideEffect(store).watch { [self] state in
+            self.sideEffect = state as! app.FeedSideEffect
         }
     }
     
-    public func dispatch(_ action: FeedAction) {
+    public func dispatch(_ action: app.FeedAction) {
         store.dispatch(action: action)
     }
     
@@ -56,30 +56,30 @@ class ObservableFeedStore: ObservableObject {
     }
 }
 
-public typealias DispatchFunction = (FeedAction) -> ()
+public typealias DispatchFunction = (app.FeedAction) -> ()
 
 public protocol ConnectedView: View {
     associatedtype Props
     associatedtype V: View
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props
+    func map(state: app.FeedState, dispatch: @escaping DispatchFunction) -> Props
     func body(props: Props) -> V
 }
 
 public extension ConnectedView {
-    func render(state: FeedState, dispatch: @escaping DispatchFunction) -> V {
+    func render(state: app.FeedState, dispatch: @escaping DispatchFunction) -> V {
         let props = map(state: state, dispatch: dispatch)
         return body(props: props)
     }
     
     var body: StoreConnector<V> {
-        return StoreConnector(content: render)
+        return StoreConnector<V>(content: render)
     }
 }
 
 public struct StoreConnector<V: View>: View {
     @EnvironmentObject var store: ObservableFeedStore
-    let content: (FeedState, @escaping DispatchFunction) -> V
+    let content: (app.FeedState, @escaping DispatchFunction) -> V
     
     public var body: V {
         return content(store.state, store.dispatch)

@@ -26,6 +26,11 @@ kotlin {
         }
     }
 
+    swiftExport {
+        moduleName = "RssReader"
+        flattenPackage = "com.github.jetbrains.rssreader"
+    }
+
     sourceSets {
         commonMain.dependencies {
             //Network

@@ -11,7 +11,7 @@ import RssReader
 import URLImage
 
 struct FeedRow: View {
-    let feed: Feed
+    let feed: core.entity.Feed
     
     private enum Constants {
         static let imageWidth: CGFloat = 20.0

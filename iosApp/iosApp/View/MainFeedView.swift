@@ -6,22 +6,22 @@ struct MainFeedView: ConnectedView {
     
     struct Props {
         let loading: Bool
-        let items: [Post]
+        let items: [core.entity.Post]
         let feedOptions: [FeedPickerOption]
         let selectedFeedOption: FeedPickerOption
         
         let onReloadFeed: (Bool) -> Void
-        let onSelectFeed: (Feed?) -> Void
+        let onSelectFeed: (core.entity.Feed?) -> Void
     }
     
     enum FeedPickerOption: Hashable {
-        case all, feed(Feed)
+        case all, feed(core.entity.Feed)
         
         var title: String {
             return String((self.feed?.title ?? "All").prefix(20))
         }
         
-        var feed: Feed? {
+        var feed: core.entity.Feed? {
             switch self {
             case .all:
                 return nil
@@ -31,7 +31,7 @@ struct MainFeedView: ConnectedView {
         }
     }
     
-    func map(state: FeedState, dispatch: @escaping DispatchFunction) -> Props {
+    func map(state: app.FeedState, dispatch: @escaping DispatchFunction) -> Props {
         let selectedFeedOption: FeedPickerOption
         if let selectedFeed = state.selectedFeed {
             selectedFeedOption = .feed(selectedFeed)
@@ -39,14 +39,14 @@ struct MainFeedView: ConnectedView {
             selectedFeedOption = .all
         }
         return Props(loading: state.progress,
-              items: state.mainFeedPosts(),
+                     items: app.mainFeedPosts(state),
               feedOptions: [.all] + state.feeds.map { FeedPickerOption.feed($0)},
               selectedFeedOption: selectedFeedOption,
               onReloadFeed: { reload in
-                dispatch(FeedAction.Refresh(forceLoad: reload))
+            dispatch(app.FeedAction.Refresh(forceLoad: reload))
               },
               onSelectFeed: { feed in
-                dispatch(FeedAction.SelectFeed(feed: feed))
+            dispatch(app.FeedAction.SelectFeed(feed: feed))
               })
     }
     
@@ -140,4 +140,4 @@ struct MainFeedView: ConnectedView {
     
 }
 
-extension Post: Identifiable { }
+extension core.entity.Post: Identifiable { }
